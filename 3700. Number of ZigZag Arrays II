@@ -1,0 +1,85 @@
+3700. Number of ZigZag Arrays II
+
+
+
+
+class Solution {
+    static final long MOD = 1000000007L;
+
+    public int zigZagArrays(int n, int l, int r) {
+        int m = r - l + 1;
+        int sz = 2 * m;
+
+        long[] base = new long[sz];
+        for (int v = 1; v <= m; v++) {
+            base[v - 1] = v - 1;
+            base[m + v - 1] = m - v;
+        }
+
+        if (n == 2) {
+            long ans = 0;
+            for (long x : base) ans = (ans + x) % MOD;
+            return (int) ans;
+        }
+
+        long[][] mat = new long[sz][sz];
+
+        for (int v = 0; v < m; v++) {
+            for (int u = 0; u < v; u++) {
+                mat[v][m + u] = 1;
+            }
+        }
+
+        for (int v = 0; v < m; v++) {
+            for (int u = v + 1; u < m; u++) {
+                mat[m + v][u] = 1;
+            }
+        }
+
+        long[][] p = matPow(mat, n - 2);
+
+        long ans = 0;
+        for (int i = 0; i < sz; i++) {
+            long cur = 0;
+            for (int j = 0; j < sz; j++) {
+                cur = (cur + p[i][j] * base[j]) % MOD;
+            }
+            ans = (ans + cur) % MOD;
+        }
+
+        return (int) ans;
+    }
+
+    private long[][] matPow(long[][] a, long e) {
+        int n = a.length;
+        long[][] res = new long[n][n];
+        for (int i = 0; i < n; i++) res[i][i] = 1;
+
+        long[][] cur = a;
+
+        while (e > 0) {
+            if ((e & 1) == 1) res = multiply(res, cur);
+            cur = multiply(cur, cur);
+            e >>= 1;
+        }
+        return res;
+    }
+
+    private long[][] multiply(long[][] a, long[][] b) {
+        int n = a.length;
+        long[][] c = new long[n][n];
+
+        for (int i = 0; i < n; i++) {
+            for (int k = 0; k < n; k++) {
+                long av = a[i][k];
+                if (av == 0) continue;
+                for (int j = 0; j < n; j++) {
+                    long bv = b[k][j];
+                    if (bv == 0) continue;
+                    c[i][j] = (c[i][j] + av * bv) % MOD;
+                }
+            }
+        }
+        return c;
+    }
+}
